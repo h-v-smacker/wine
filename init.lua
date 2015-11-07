@@ -119,6 +119,7 @@ minetest.register_abm({
 	nodenames = {"wine:wine_barrel"},
 	interval = 5.0,
 	chance = 1,
+	catch_up = false,
 
 	action = function(pos, node)
 
