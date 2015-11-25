@@ -53,7 +53,7 @@ minetest.register_node("wine:wine_barrel", {
 	tiles = {"barrel_side.png", "barrel_side.png", "barrel_side.png^[transformR90",
 		"barrel_side.png^[transformR90", "barrel_bottom.png", "barrel_front.png"},
 	paramtype2 = "facedir",
-	groups = {choppy = 2},
+	groups = {choppy = 2, oddly_breakable_by_hand = 1},
 	legacy_facedir_simple = true,
 
 	on_construct = function(pos)
@@ -176,3 +176,5 @@ minetest.register_abm({
 		end
 	end,
 })
+
+print ("[MOD] Wine mod loaded")
