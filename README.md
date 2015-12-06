@@ -12,3 +12,5 @@ Changelog:
 
 0.1 - Initial release
 0.2 - Added protection checks to barrel
+0.3 - New barrel model from cottages mod (thanks Napiophelios)
+    - Wine glass can be placed

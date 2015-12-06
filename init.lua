@@ -1,7 +1,27 @@
--- wine glass
+--[[ wine glass
 minetest.register_craftitem("wine:glass_wine", {
 	description = "Glass of Wine",
 	inventory_image = "wine.png",
+	on_use = minetest.item_eat(2),
+})]]
+
+minetest.register_node("wine:glass_wine", {
+	description = "Glass of Wine",
+	drawtype = "plantlike",
+	visual_scale = 0.8,
+	tiles = {"wine.png"},
+	inventory_image = "wine.png",
+	wield_image = "wine.png",
+	paramtype = "light",
+	is_ground_content = false,
+	sunlight_propagates = true,
+	walkable = false,
+	selection_box = {
+		type = "fixed",
+		fixed = {-0.2, -0.5, -0.2, 0.2, 0.3, 0.2}
+	},
+	groups = {vessel = 1, dig_immediate = 3, attached_node = 1},
+	sounds = default.node_sound_glass_defaults(),
 	on_use = minetest.item_eat(2),
 })
 
@@ -50,8 +70,12 @@ winebarrel_formspec = "size[8,9]"
 
 minetest.register_node("wine:wine_barrel", {
 	description = "Winebarrel",
-	tiles = {"barrel_side.png", "barrel_side.png", "barrel_side.png^[transformR90",
-		"barrel_side.png^[transformR90", "barrel_bottom.png", "barrel_front.png"},
+--	tiles = {"barrel_side.png", "barrel_side.png", "barrel_side.png^[transformR90",
+--		"barrel_side.png^[transformR90", "barrel_bottom.png", "barrel_front.png"},
+	tiles = {"wine_barrel.png" },
+	drawtype = "mesh",
+	mesh = "wine_barrel.obj",
+	paramtype = "light",
 	paramtype2 = "facedir",
 	groups = {choppy = 2, oddly_breakable_by_hand = 1},
 	legacy_facedir_simple = true,
