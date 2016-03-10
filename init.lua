@@ -1,17 +1,12 @@
---[[ wine glass
-minetest.register_craftitem("wine:glass_wine", {
-	description = "Glass of Wine",
-	inventory_image = "wine.png",
-	on_use = minetest.item_eat(2),
-})]]
 
+-- glass of wine
 minetest.register_node("wine:glass_wine", {
 	description = "Glass of Wine",
 	drawtype = "plantlike",
 	visual_scale = 0.8,
-	tiles = {"wine.png"},
-	inventory_image = "wine.png",
-	wield_image = "wine.png",
+	tiles = {"wine_glass.png"},
+	inventory_image = "wine_glass.png",
+	wield_image = "wine_glass.png",
 	paramtype = "light",
 	is_ground_content = false,
 	sunlight_propagates = true,
@@ -29,8 +24,8 @@ minetest.register_node("wine:glass_wine", {
 minetest.register_node("wine:bottle_wine", {
 	description = "Bottle of Wine",
 	drawtype = "plantlike",
-	tiles = {"bottle_wine.png"},
-	inventory_image = "bottle_wine.png",
+	tiles = {"wine_bottle.png"},
+	inventory_image = "wine_bottle.png",
 	paramtype = "light",
 	sunlight_propagates = true,
 	walkable = false,
@@ -57,6 +52,27 @@ minetest.register_craft({
 	recipe = {"wine:bottle_wine"},
 })
 
+-- glass of beer (thanks to RiverKpocc @ deviantart.com for image)
+minetest.register_node("wine:glass_beer", {
+	description = "Glass of Beer",
+	drawtype = "torchlike", --"plantlike",
+	visual_scale = 0.8,
+	tiles = {"wine_beer_glass.png"},
+	inventory_image = "wine_beer_glass.png",
+	wield_image = "wine_beer_glass.png",
+	paramtype = "light",
+	is_ground_content = false,
+	sunlight_propagates = true,
+	walkable = false,
+	selection_box = {
+		type = "fixed",
+		fixed = {-0.2, -0.5, -0.2, 0.2, 0.3, 0.2}
+	},
+	groups = {vessel = 1, dig_immediate = 3, attached_node = 1},
+	sounds = default.node_sound_glass_defaults(),
+	on_use = minetest.item_eat(2),
+})
+
 -- Wine barrel
 winebarrel_formspec = "size[8,9]"
 	.. default.gui_bg..default.gui_bg_img..default.gui_slots
@@ -69,9 +85,7 @@ winebarrel_formspec = "size[8,9]"
 	.. "listring[current_player;main]"
 
 minetest.register_node("wine:wine_barrel", {
-	description = "Winebarrel",
---	tiles = {"barrel_side.png", "barrel_side.png", "barrel_side.png^[transformR90",
---		"barrel_side.png^[transformR90", "barrel_bottom.png", "barrel_front.png"},
+	description = "Fermenting Barrel",
 	tiles = {"wine_barrel.png" },
 	drawtype = "mesh",
 	mesh = "wine_barrel.obj",
@@ -83,7 +97,7 @@ minetest.register_node("wine:wine_barrel", {
 	on_construct = function(pos)
 		local meta = minetest.get_meta(pos)
 		meta:set_string("formspec", winebarrel_formspec)
-		meta:set_string("infotext", "Wine Barrel")
+		meta:set_string("infotext", "Fermenting Barrel")
 		meta:set_float("status", 0.0)
 		local inv = meta:get_inventory()
 		inv:set_size("src", 1)
@@ -159,7 +173,7 @@ minetest.register_craft({
 -- Wine barrel abm
 minetest.register_abm({
 	nodenames = {"wine:wine_barrel"},
-	interval = 5.0,
+	interval = 5,
 	chance = 1,
 	catch_up = false,
 
@@ -168,15 +182,21 @@ minetest.register_abm({
 		local meta = minetest.get_meta(pos)
 		local inv = meta:get_inventory()
 
-		-- make sure only grapes are fermented in barrel
+		-- is barrel empty?
+		if inv:is_empty("src") then
+			return
+		end
+
+		-- does it contain grapes or barley?
 		if not inv:contains_item("src", ItemStack("farming:grapes"))
-		and not inv:is_empty("src") then
+		and not inv:contains_item("src", ItemStack("farming:barley")) then
 			return
 		end
 
 		-- is barrel full
-		if not inv:room_for_item("dst", "farming:grapes") then
-			meta:set_string("infotext", "Wine Barrel (FULL)")
+		if not inv:room_for_item("dst", "wine:glass_wine")
+		or not inv:room_for_item("dst", "wine:glass_beer") then
+			meta:set_string("infotext", "Fermenting Barrel (FULL)")
 			return
 		end
 
@@ -187,16 +207,29 @@ minetest.register_abm({
 
 			-- fermenting (change status)
 			if status < 100 then
-				meta:set_string("infotext", "Wine Barrel (fermented: " .. status .. "%)")
+				meta:set_string("infotext", "Fermenting Barrel (" .. status .. "% Done)")
 				meta:set_float("status", status + 5)
 
-			else --fermented (take grapes and add glass of wine)
-				inv:remove_item("src", "farming:grapes")
-				inv:add_item("dst", "wine:glass_wine")
-				meta:set_float("status", 0.0)
+			else
+
+				if inv:contains_item("src", "farming:grapes") then
+
+					--fermented (take grapes and add glass of wine)
+					inv:remove_item("src", "farming:grapes")
+					inv:add_item("dst", "wine:glass_wine")
+					meta:set_float("status", 0.0)
+
+				elseif inv:contains_item("src", "farming:barley") then
+
+					--fermented (take barley and add glass of beer)
+					inv:remove_item("src", "farming:barley")
+					inv:add_item("dst", "wine:glass_beer")
+					meta:set_float("status", 0.0)
+
+				end
 			end
 		else
-			meta:set_string("infotext", "Wine Barrel")
+			meta:set_string("infotext", "Fermenting Barrel")
 		end
 	end,
 })
