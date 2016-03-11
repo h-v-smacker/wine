@@ -73,6 +73,27 @@ minetest.register_node("wine:glass_beer", {
 	on_use = minetest.item_eat(2),
 })
 
+-- glass of honey mead
+minetest.register_node("wine:glass_mead", {
+	description = "Glass of Honey-Mead",
+	drawtype = "plantlike",
+	visual_scale = 0.8,
+	tiles = {"wine_mead_glass.png"},
+	inventory_image = "wine_mead_glass.png",
+	wield_image = "wine_mead_glass.png",
+	paramtype = "light",
+	is_ground_content = false,
+	sunlight_propagates = true,
+	walkable = false,
+	selection_box = {
+		type = "fixed",
+		fixed = {-0.2, -0.5, -0.2, 0.2, 0.3, 0.2}
+	},
+	groups = {vessel = 1, dig_immediate = 3, attached_node = 1},
+	sounds = default.node_sound_glass_defaults(),
+	on_use = minetest.item_eat(1),
+})
+
 -- Wine barrel
 winebarrel_formspec = "size[8,9]"
 	.. default.gui_bg..default.gui_bg_img..default.gui_slots
@@ -189,13 +210,15 @@ minetest.register_abm({
 
 		-- does it contain grapes or barley?
 		if not inv:contains_item("src", ItemStack("farming:grapes"))
-		and not inv:contains_item("src", ItemStack("farming:barley")) then
+		and not inv:contains_item("src", ItemStack("farming:barley"))
+		and not inv:contains_item("src", ItemStack("mobs:honey")) then
 			return
 		end
 
 		-- is barrel full
 		if not inv:room_for_item("dst", "wine:glass_wine")
-		or not inv:room_for_item("dst", "wine:glass_beer") then
+		or not inv:room_for_item("dst", "wine:glass_beer")
+		or not inv:room_for_item("dst", "wine:glass_mead") then
 			meta:set_string("infotext", "Fermenting Barrel (FULL)")
 			return
 		end
@@ -226,7 +249,19 @@ minetest.register_abm({
 					inv:add_item("dst", "wine:glass_beer")
 					meta:set_float("status", 0.0)
 
+				elseif inv:contains_item("src", "mobs:honey") then
+
+					--fermented (take honey and add glass of mead)
+					inv:remove_item("src", "mobs:honey")
+					inv:add_item("dst", "wine:glass_mead")
+					meta:set_float("status", 0.0)
 				end
+
+				if inv:is_empty("src") then
+					meta:set_float("status", 0.0)
+					meta:set_string("infotext", "Fermenting Barrel")
+				end
+
 			end
 		else
 			meta:set_string("infotext", "Fermenting Barrel")
