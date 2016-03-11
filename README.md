@@ -15,3 +15,4 @@ Changelog:
 0.3 - New barrel model from cottages mod (thanks Napiophelios)
     - Wine glass can be placed
 0.4 - Added ability to ferment barley from farming redo into beer
+      and also honey from mobs redo into honey mead
