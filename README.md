@@ -10,9 +10,8 @@ This mod adds a wine barrel used to ferment grapes into glasses of wine, 9 of wh
 
 Changelog:
 
-0.1 - Initial release
-0.2 - Added protection checks to barrel
-0.3 - New barrel model from cottages mod (thanks Napiophelios)
-    - Wine glass can be placed
-0.4 - Added ability to ferment barley from farming redo into beer
-      and also honey from mobs redo into honey mead
+- 0.1 - Initial release
+- 0.2 - Added protection checks to barrel
+- 0.3 - New barrel model from cottages mod (thanks Napiophelios), also wine glass can be placed
+- 0.4 - Added ability to ferment barley from farming redo into beer and also honey from mobs redo into honey mead
+- 0.5 - Added apple cider

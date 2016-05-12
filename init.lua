@@ -54,7 +54,7 @@ minetest.register_craft({
 
 -- glass of beer (thanks to RiverKpocc @ deviantart.com for image)
 minetest.register_node("wine:glass_beer", {
-	description = "Glass of Beer",
+	description = "Beer",
 	drawtype = "torchlike", --"plantlike",
 	visual_scale = 0.8,
 	tiles = {"wine_beer_glass.png"},
@@ -75,7 +75,7 @@ minetest.register_node("wine:glass_beer", {
 
 -- glass of honey mead
 minetest.register_node("wine:glass_mead", {
-	description = "Glass of Honey-Mead",
+	description = "Honey-Mead",
 	drawtype = "plantlike",
 	visual_scale = 0.8,
 	tiles = {"wine_mead_glass.png"},
@@ -92,6 +92,27 @@ minetest.register_node("wine:glass_mead", {
 	groups = {vessel = 1, dig_immediate = 3, attached_node = 1},
 	sounds = default.node_sound_glass_defaults(),
 	on_use = minetest.item_eat(1),
+})
+
+-- glass of apple cider
+minetest.register_node("wine:glass_cider", {
+	description = "Apple Cider",
+	drawtype = "plantlike",
+	visual_scale = 0.8,
+	tiles = {"wine_cider_glass.png"},
+	inventory_image = "wine_cider_glass.png",
+	wield_image = "wine_cider_glass.png",
+	paramtype = "light",
+	is_ground_content = false,
+	sunlight_propagates = true,
+	walkable = false,
+	selection_box = {
+		type = "fixed",
+		fixed = {-0.2, -0.5, -0.2, 0.2, 0.3, 0.2}
+	},
+	groups = {vessel = 1, dig_immediate = 3, attached_node = 1},
+	sounds = default.node_sound_glass_defaults(),
+	on_use = minetest.item_eat(2),
 })
 
 -- Wine barrel
@@ -211,6 +232,7 @@ minetest.register_abm({
 		-- does it contain grapes or barley?
 		if not inv:contains_item("src", ItemStack("farming:grapes"))
 		and not inv:contains_item("src", ItemStack("farming:barley"))
+		and not inv:contains_item("src", ItemStack("default:apple"))
 		and not inv:contains_item("src", ItemStack("mobs:honey")) then
 			return
 		end
@@ -218,6 +240,7 @@ minetest.register_abm({
 		-- is barrel full
 		if not inv:room_for_item("dst", "wine:glass_wine")
 		or not inv:room_for_item("dst", "wine:glass_beer")
+		or not inv:room_for_item("dst", "wine:glass_cider")
 		or not inv:room_for_item("dst", "wine:glass_mead") then
 			meta:set_string("infotext", "Fermenting Barrel (FULL)")
 			return
@@ -254,6 +277,13 @@ minetest.register_abm({
 					--fermented (take honey and add glass of mead)
 					inv:remove_item("src", "mobs:honey")
 					inv:add_item("dst", "wine:glass_mead")
+					meta:set_float("status", 0.0)
+
+				elseif inv:contains_item("src", "default:apple") then
+
+					--fermented (take apple and add glass of cider)
+					inv:remove_item("src", "default:apple")
+					inv:add_item("dst", "wine:glass_cider")
 					meta:set_float("status", 0.0)
 				end
 
