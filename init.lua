@@ -1,7 +1,28 @@
 
+-- Intllib
+local S
+if minetest.get_modpath("intllib") then
+	S = intllib.Getter()
+else
+	S = function(s, a, ...)
+		if a == nil then
+			return s
+		end
+		a = {a, ...}
+		return s:gsub("(@?)@(%(?)(%d+)(%)?)",
+			function(e, o, n, c)
+				if e == ""then
+					return a[tonumber(n)] .. (o == "" and c or "")
+				else
+					return "@" .. o .. n .. c
+				end
+			end)
+	end
+end
+
 -- glass of wine
 minetest.register_node("wine:glass_wine", {
-	description = "Glass of Wine",
+	description = S("Glass of Wine"),
 	drawtype = "plantlike",
 	visual_scale = 0.8,
 	tiles = {"wine_glass.png"},
@@ -22,7 +43,7 @@ minetest.register_node("wine:glass_wine", {
 
 -- bottle of wine
 minetest.register_node("wine:bottle_wine", {
-	description = "Bottle of Wine",
+	description = S("Bottle of Wine"),
 	drawtype = "plantlike",
 	tiles = {"wine_bottle.png"},
 	inventory_image = "wine_bottle.png",
@@ -54,7 +75,7 @@ minetest.register_craft({
 
 -- glass of beer (thanks to RiverKpocc @ deviantart.com for image)
 minetest.register_node("wine:glass_beer", {
-	description = "Beer",
+	description = S("Beer"),
 	drawtype = "torchlike", --"plantlike",
 	visual_scale = 0.8,
 	tiles = {"wine_beer_glass.png"},
@@ -75,7 +96,7 @@ minetest.register_node("wine:glass_beer", {
 
 -- glass of honey mead
 minetest.register_node("wine:glass_mead", {
-	description = "Honey-Mead",
+	description = S("Honey-Mead"),
 	drawtype = "plantlike",
 	visual_scale = 0.8,
 	tiles = {"wine_mead_glass.png"},
@@ -96,7 +117,7 @@ minetest.register_node("wine:glass_mead", {
 
 -- glass of apple cider
 minetest.register_node("wine:glass_cider", {
-	description = "Apple Cider",
+	description = S("Apple Cider"),
 	drawtype = "plantlike",
 	visual_scale = 0.8,
 	tiles = {"wine_cider_glass.png"},
@@ -127,7 +148,7 @@ winebarrel_formspec = "size[8,9]"
 	.. "listring[current_player;main]"
 
 minetest.register_node("wine:wine_barrel", {
-	description = "Fermenting Barrel",
+	description = S("Fermenting Barrel"),
 	tiles = {"wine_barrel.png" },
 	drawtype = "mesh",
 	mesh = "wine_barrel.obj",
@@ -139,7 +160,7 @@ minetest.register_node("wine:wine_barrel", {
 	on_construct = function(pos)
 		local meta = minetest.get_meta(pos)
 		meta:set_string("formspec", winebarrel_formspec)
-		meta:set_string("infotext", "Fermenting Barrel")
+		meta:set_string("infotext", S("Fermenting Barrel"))
 		meta:set_float("status", 0.0)
 		local inv = meta:get_inventory()
 		inv:set_size("src", 1)
@@ -242,7 +263,7 @@ minetest.register_abm({
 		or not inv:room_for_item("dst", "wine:glass_beer")
 		or not inv:room_for_item("dst", "wine:glass_cider")
 		or not inv:room_for_item("dst", "wine:glass_mead") then
-			meta:set_string("infotext", "Fermenting Barrel (FULL)")
+			meta:set_string("infotext", S("Fermenting Barrel (FULL)"))
 			return
 		end
 
@@ -253,7 +274,7 @@ minetest.register_abm({
 
 			-- fermenting (change status)
 			if status < 100 then
-				meta:set_string("infotext", "Fermenting Barrel (" .. status .. "% Done)")
+				meta:set_string("infotext", S("Fermenting Barrel (@1% Done)", status))
 				meta:set_float("status", status + 5)
 
 			else
@@ -289,14 +310,14 @@ minetest.register_abm({
 
 				if inv:is_empty("src") then
 					meta:set_float("status", 0.0)
-					meta:set_string("infotext", "Fermenting Barrel")
+					meta:set_string("infotext", S("Fermenting Barrel"))
 				end
 
 			end
 		else
-			meta:set_string("infotext", "Fermenting Barrel")
+			meta:set_string("infotext", S("Fermenting Barrel"))
 		end
 	end,
 })
 
-print ("[MOD] Wine mod loaded")
+print (S("[MOD] Wine loaded"))
