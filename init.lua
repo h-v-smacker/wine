@@ -246,7 +246,7 @@ minetest.register_abm({
 		local inv = meta:get_inventory()
 
 		-- is barrel empty?
-		if inv:is_empty("src") then
+		if not inv or inv:is_empty("src") then
 			return
 		end
 
