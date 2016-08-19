@@ -235,6 +235,7 @@ minetest.register_craft({
 
 -- Wine barrel abm
 minetest.register_abm({
+	label = "Barrel fermentation",
 	nodenames = {"wine:wine_barrel"},
 	interval = 5,
 	chance = 1,
@@ -242,7 +243,7 @@ minetest.register_abm({
 
 	action = function(pos, node)
 
-		local meta = minetest.get_meta(pos)
+		local meta = minetest.get_meta(pos) ; if not meta then return end
 		local inv = meta:get_inventory()
 
 		-- is barrel empty?
