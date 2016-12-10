@@ -321,4 +321,19 @@ minetest.register_abm({
 	end,
 })
 
+-- add lucky blocks
+
+if minetest.get_modpath("lucky_block") then
+
+lucky_block:add_blocks({
+	{"dro", {"wine:glass_wine"}, 5},
+	{"dro", {"wine:glass_beer"}, 5},
+	{"dro", {"wine:glass_mead"}, 5},
+	{"dro", {"wine:glass_cider"}, 5},
+	{"nod", "wine:bottle_wine"},
+	{"nod", "wine:wine_barrel"},
+	{"tel", 5, 1},
+})
+end
+
 print (S("[MOD] Wine loaded"))
