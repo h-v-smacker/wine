@@ -112,7 +112,7 @@ minetest.register_node("wine:glass_mead", {
 	},
 	groups = {vessel = 1, dig_immediate = 3, attached_node = 1},
 	sounds = default.node_sound_glass_defaults(),
-	on_use = minetest.item_eat(1),
+	on_use = minetest.item_eat(4),
 })
 
 -- glass of apple cider
