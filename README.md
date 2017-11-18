@@ -4,7 +4,7 @@ by TenPlus1
 
 Depends: Farming Redo
 
-This mod adds a barrel used to ferment grapes into glasses of wine, 9 of which can then be crafted into a bottle of wine.  It can also ferment honey into mead, barley into beer and apples into cider.
+This mod adds a barrel used to ferment grapes into glasses of wine, 9 of which can then be crafted into a bottle of wine. It can also ferment honey into mead, barley into beer, wheat into weizen (wheat beer), and apples into cider.
 
 Change log:
 

@@ -94,6 +94,28 @@ minetest.register_node("wine:glass_beer", {
 	on_use = minetest.item_eat(2),
 })
 
+-- glass of weizen, or wheat beer
+-- The image is a lighter version of the one from RiverKpocc @ deviantart.com
+minetest.register_node("wine:glass_wheat_beer", {
+	description = S("Wheat Beer"),
+	drawtype = "torchlike", --"plantlike",
+	visual_scale = 0.8,
+	tiles = {"wine_wheat_beer_glass.png"},
+	inventory_image = "wine_wheat_beer_glass.png",
+	wield_image = "wine_wheat_beer_glass.png",
+	paramtype = "light",
+	is_ground_content = false,
+	sunlight_propagates = true,
+	walkable = false,
+	selection_box = {
+		type = "fixed",
+		fixed = {-0.2, -0.5, -0.2, 0.2, 0.3, 0.2}
+	},
+	groups = {vessel = 1, dig_immediate = 3, attached_node = 1},
+	sounds = default.node_sound_glass_defaults(),
+	on_use = minetest.item_eat(2),
+})
+
 -- glass of honey mead
 minetest.register_node("wine:glass_mead", {
 	description = S("Honey-Mead"),
@@ -254,6 +276,7 @@ minetest.register_abm({
 		-- does it contain grapes or barley?
 		if not inv:contains_item("src", ItemStack("farming:grapes"))
 		and not inv:contains_item("src", ItemStack("farming:barley"))
+		and not inv:contains_item("src", ItemStack("farming:wheat"))
 		and not inv:contains_item("src", ItemStack("default:apple"))
 		and not inv:contains_item("src", ItemStack("mobs:honey")) then
 			return
@@ -262,6 +285,7 @@ minetest.register_abm({
 		-- is barrel full
 		if not inv:room_for_item("dst", "wine:glass_wine")
 		or not inv:room_for_item("dst", "wine:glass_beer")
+		or not inv:room_for_item("dst", "wine:glass_wheat_beer")
 		or not inv:room_for_item("dst", "wine:glass_cider")
 		or not inv:room_for_item("dst", "wine:glass_mead") then
 			meta:set_string("infotext", S("Fermenting Barrel (FULL)"))
@@ -292,6 +316,13 @@ minetest.register_abm({
 					--fermented (take barley and add glass of beer)
 					inv:remove_item("src", "farming:barley")
 					inv:add_item("dst", "wine:glass_beer")
+					meta:set_float("status", 0.0)
+				
+				elseif inv:contains_item("src", "farming:wheat") then
+
+					--fermented (take wheat and add glass of weizen)
+					inv:remove_item("src", "farming:wheat")
+					inv:add_item("dst", "wine:glass_wheat_beer")
 					meta:set_float("status", 0.0)
 
 				elseif inv:contains_item("src", "mobs:honey") then
@@ -328,6 +359,7 @@ if minetest.get_modpath("lucky_block") then
 lucky_block:add_blocks({
 	{"dro", {"wine:glass_wine"}, 5},
 	{"dro", {"wine:glass_beer"}, 5},
+	{"dro", {"wine:glass_weizen_beer"}, 5},
 	{"dro", {"wine:glass_mead"}, 5},
 	{"dro", {"wine:glass_cider"}, 5},
 	{"nod", "wine:bottle_wine"},
