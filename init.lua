@@ -176,8 +176,9 @@ minetest.register_node("wine:wine_barrel", {
 	mesh = "wine_barrel.obj",
 	paramtype = "light",
 	paramtype2 = "facedir",
-	groups = {choppy = 2, oddly_breakable_by_hand = 1},
+	groups = {choppy = 2, oddly_breakable_by_hand = 1, tubedevice = 1, tubedevice_receiver = 1},
 	legacy_facedir_simple = true,
+-- 	on_place = minetest.rotate_node,
 
 	on_construct = function(pos)
 		local meta = minetest.get_meta(pos)
@@ -244,6 +245,27 @@ minetest.register_node("wine:wine_barrel", {
 			return 0
 		end
 	end,
+                                            
+	tube = (function() if minetest.get_modpath("pipeworks") then return {
+		-- using a different stack from defaut when inserting
+		insert_object = function(pos, node, stack, direction)
+			local meta = minetest.get_meta(pos)
+			local inv = meta:get_inventory()
+			local timer = minetest.get_node_timer(pos)
+			if not timer:is_started() then
+				timer:start(1.0)
+			end
+			return inv:add_item("src", stack)
+		end,
+		can_insert = function(pos,node,stack,direction)
+			local meta = minetest.get_meta(pos)
+			local inv = meta:get_inventory()
+			return inv:room_for_item("src", stack)
+		end,
+		-- the default stack, from which objects will be taken
+		input_inventory = "dst",
+		connect_sides = {left = 1, right = 1, back = 1, front = 1, bottom = 1, top = 1}
+	} end end)(),
 })
 
 minetest.register_craft({
