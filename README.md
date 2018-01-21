@@ -13,5 +13,19 @@ Change log:
 - 0.3 - New barrel model from cottages mod (thanks Napiophelios), also wine glass can be placed
 - 0.4 - Added ability to ferment barley from farming redo into beer and also honey from mobs redo into honey mead
 - 0.5 - Added apple cider
+- 0.6 - Added API so drinks can easily be added, also added wheat beer thanks to h-v-smacker and support for pipeworks/tubelib
 
-Lucky Blocks: 7
+Lucky Blocks: 8
+
+
+Wine Mod API
+------------
+
+wine:add_item(list)
+
+e.g.
+
+wine:add_item({
+	{"farming:barley", "wine:glass_beer"},
+	{"default:apple", "wine:glass_cider"},
+})

@@ -1,4 +1,8 @@
 default
 intllib?
 lucky_block?
+<<<<<<< HEAD
 pipeworks?
+=======
+pipeworks?
+>>>>>>> upstream/master
