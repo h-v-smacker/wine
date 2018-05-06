@@ -303,7 +303,6 @@ minetest.register_node("wine:wine_barrel", {
 		choppy = 2, oddly_breakable_by_hand = 1, flammable = 2,
 		tubedevice = 1, tubedevice_receiver = 1
 	},
-
 	legacy_facedir_simple = true,
 -- 	on_place = minetest.rotate_node,
 
