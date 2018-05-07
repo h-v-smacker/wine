@@ -269,7 +269,7 @@ minetest.register_node("wine:blue_agave", {
 		type = "fixed",
 		fixed = {-0.2, -0.5, -0.2, 0.2, 0.3, 0.2}
 	},
-	groups = {dig_immediate = 3, attached_node = 1},
+	groups = {dig_immediate = 3, attached_node = 1, plant = 1},
 	sounds = default.node_sound_leaves_defaults(),
 })
 
@@ -278,6 +278,59 @@ minetest.register_craft( {
 	output = "dye:cyan 4",
 	recipe = {"wine:blue_agave"}
 })
+
+minetest.register_decoration({
+	deco_type = "simple",
+	place_on = {"default:desert_sand"},
+	sidelen = 16,
+	fill_ratio = 0.005,
+	biomes = {"desert"},
+	decoration = {"wine:blue_agave"},
+})
+
+minetest.register_abm({
+	label = "Blue Agave growth",
+	nodenames = {"wine:blue_agave"},
+	interval = 17,
+	chance = 33,
+	action = function(pos, node)
+		local n = minetest.find_nodes_in_area({x = pos.x-2, y = pos.y-1, z = pos.z-2},
+                                                  {x = pos.x+2, y = pos.y+1, z = pos.z+2},
+                                                  {"wine:blue_agave"})
+                      
+		if #n > 3 then
+			-- needs to have 2 neighbors or less to propagate (3 = +itself)
+			return
+		end
+                      
+		local random = {
+			x = pos.x + math.random(-1, 1),
+			y = pos.y + math.random(-1, 1),
+			z = pos.z + math.random(-1, 1)
+		}
+		local random_node = minetest.get_node_or_nil(random)
+		if not random_node or random_node.name ~= "air" then
+			return
+		end
+		local node_under = minetest.get_node_or_nil({x = random.x,
+                                                         y = random.y - 1, 
+                                                         z = random.z})
+		if not node_under then
+			return
+		end
+
+		if node_under.name == "default:desert_sand" then
+			minetest.set_node(random, {name = "wine:blue_agave"})
+		end
+                      
+	end
+})
+
+if minetest.get_modpath("bonemeal") then
+	bonemeal:add_deco({
+		{"default:desert_sand", {}, {"default:dry_shrub", "wine:blue_agave", "", ""} }
+	})
+end
 
 -- Wine barrel
 winebarrel_formspec = "size[8,9]"
