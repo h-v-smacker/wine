@@ -304,7 +304,7 @@ minetest.register_abm({
 
 if minetest.get_modpath("bonemeal") then
 	bonemeal:add_deco({
-		{"default:desert_sand", {}, {"default:dry_shrub", "wine:blue_agave", "", ""} }
+		{"default:desert_sand", {}, {"wine:blue_agave"} }
 	})
 end
 
