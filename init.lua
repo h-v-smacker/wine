@@ -136,27 +136,6 @@ minetest.register_node("wine:glass_beer", {
 	on_use = minetest.item_eat(2),
 })
 
--- glass of weizen, or wheat beer
--- The image is a lighter version of the one from RiverKpocc @ deviantart.com
-minetest.register_node("wine:glass_wheat_beer", {
-	description = S("Wheat Beer"),
-	drawtype = "torchlike", --"plantlike",
-	visual_scale = 0.8,
-	tiles = {"wine_wheat_beer_glass.png"},
-	inventory_image = "wine_wheat_beer_glass.png",
-	wield_image = "wine_wheat_beer_glass.png",
-	paramtype = "light",
-	is_ground_content = false,
-	sunlight_propagates = true,
-	walkable = false,
-	selection_box = {
-		type = "fixed",
-		fixed = {-0.2, -0.5, -0.2, 0.2, 0.3, 0.2}
-	},
-	groups = {vessel = 1, dig_immediate = 3, attached_node = 1},
-	sounds = default.node_sound_glass_defaults(),
-	on_use = minetest.item_eat(2),
-})
 
 -- glass of honey mead
 minetest.register_node("wine:glass_mead", {
@@ -269,7 +248,7 @@ minetest.register_node("wine:blue_agave", {
 		type = "fixed",
 		fixed = {-0.2, -0.5, -0.2, 0.2, 0.3, 0.2}
 	},
-	groups = {dig_immediate = 3, attached_node = 1, plant = 1},
+	groups = {snappy = 3, attached_node = 1, plant = 1},
 	sounds = default.node_sound_leaves_defaults(),
 })
 
@@ -283,7 +262,7 @@ minetest.register_decoration({
 	deco_type = "simple",
 	place_on = {"default:desert_sand"},
 	sidelen = 16,
-	fill_ratio = 0.005,
+	fill_ratio = 0.001,
 	biomes = {"desert"},
 	decoration = {"wine:blue_agave"},
 })
@@ -294,35 +273,32 @@ minetest.register_abm({
 	interval = 17,
 	chance = 33,
 	action = function(pos, node)
-		local n = minetest.find_nodes_in_area({x = pos.x-2, y = pos.y-1, z = pos.z-2},
-                                                  {x = pos.x+2, y = pos.y+1, z = pos.z+2},
-                                                  {"wine:blue_agave"})
-                      
+
+		local n = minetest.find_nodes_in_area(
+			{x = pos.x - 2, y = pos.y - 1, z = pos.z - 2},
+			{x = pos.x + 2, y = pos.y + 1, z = pos.z + 2},
+			{"wine:blue_agave"})
+
 		if #n > 3 then
 			-- needs to have 2 neighbors or less to propagate (3 = +itself)
 			return
 		end
-                      
-		local random = {
-			x = pos.x + math.random(-1, 1),
-			y = pos.y + math.random(-1, 1),
-			z = pos.z + math.random(-1, 1)
-		}
-		local random_node = minetest.get_node_or_nil(random)
-		if not random_node or random_node.name ~= "air" then
-			return
-		end
-		local node_under = minetest.get_node_or_nil({x = random.x,
-                                                         y = random.y - 1, 
-                                                         z = random.z})
-		if not node_under then
-			return
-		end
 
-		if node_under.name == "default:desert_sand" then
-			minetest.set_node(random, {name = "wine:blue_agave"})
+		-- find desert sand with air above
+		n = minetest.find_nodes_in_area_under_air(
+			{x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
+			{x = pos.x + 1, y = pos.y + 1, z = pos.z + 1},
+			{"default:desert_sand"})
+
+		-- place blue agave
+		if n and #n > 0 then
+
+			local new_pos = n[math.random(#n)]
+
+			new_pos.y = new_pos.y + 1
+
+			minetest.set_node(new_pos, {name = "wine:blue_agave"})
 		end
-                      
 	end
 })
 
@@ -351,13 +327,12 @@ minetest.register_node("wine:wine_barrel", {
 	mesh = "wine_barrel.obj",
 	paramtype = "light",
 	paramtype2 = "facedir",
-
 	groups = {
 		choppy = 2, oddly_breakable_by_hand = 1, flammable = 2,
 		tubedevice = 1, tubedevice_receiver = 1
 	},
 	legacy_facedir_simple = true,
--- 	on_place = minetest.rotate_node,
+	on_place = minetest.rotate_node,
 
 	on_construct = function(pos)
 		local meta = minetest.get_meta(pos)
@@ -474,7 +449,6 @@ minetest.register_abm({
 			return
 		end
 
-
 		-- does it contain any of the source items on the list?
 		local has_item
 		for n = 1, #ferment do
@@ -489,19 +463,16 @@ minetest.register_abm({
 
 		-- is there room for additional fermentation?
 		if not inv:room_for_item("dst", ferment[has_item][2]) then
-
 			meta:set_string("infotext", S("Fermenting Barrel (FULL)"))
 			return
 		end
 
 		local status = meta:get_float("status")
 
-
 		-- fermenting (change status)
 		if status < 100 then
 			meta:set_string("infotext", S("Fermenting Barrel (@1% Done)", status))
 			meta:set_float("status", status + 5)
-
 		else
 			inv:remove_item("src", ferment[has_item][1])
 			inv:add_item("dst", ferment[has_item][2])
@@ -522,7 +493,7 @@ if minetest.get_modpath("lucky_block") then
 lucky_block:add_blocks({
 	{"dro", {"wine:glass_wine"}, 5},
 	{"dro", {"wine:glass_beer"}, 5},
-	{"dro", {"wine:glass_weizen_beer"}, 5},
+	{"dro", {"wine:glass_wheat_beer"}, 5},
 	{"dro", {"wine:glass_mead"}, 5},
 	{"dro", {"wine:glass_cider"}, 5},
 	{"dro", {"wine:glass_tequila"}, 5},
