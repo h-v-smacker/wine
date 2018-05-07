@@ -136,6 +136,7 @@ minetest.register_node("wine:glass_beer", {
 	on_use = minetest.item_eat(2),
 })
 
+
 -- glass of honey mead
 minetest.register_node("wine:glass_mead", {
 	description = S("Honey-Mead"),
@@ -247,7 +248,7 @@ minetest.register_node("wine:blue_agave", {
 		type = "fixed",
 		fixed = {-0.2, -0.5, -0.2, 0.2, 0.3, 0.2}
 	},
-	groups = {dig_immediate = 3, attached_node = 1},
+	groups = {snappy = 3, attached_node = 1, plant = 1},
 	sounds = default.node_sound_leaves_defaults(),
 })
 
@@ -256,6 +257,56 @@ minetest.register_craft( {
 	output = "dye:cyan 4",
 	recipe = {"wine:blue_agave"}
 })
+
+minetest.register_decoration({
+	deco_type = "simple",
+	place_on = {"default:desert_sand"},
+	sidelen = 16,
+	fill_ratio = 0.001,
+	biomes = {"desert"},
+	decoration = {"wine:blue_agave"},
+})
+
+minetest.register_abm({
+	label = "Blue Agave growth",
+	nodenames = {"wine:blue_agave"},
+	interval = 17,
+	chance = 33,
+	action = function(pos, node)
+
+		local n = minetest.find_nodes_in_area(
+			{x = pos.x - 2, y = pos.y - 1, z = pos.z - 2},
+			{x = pos.x + 2, y = pos.y + 1, z = pos.z + 2},
+			{"wine:blue_agave"})
+
+		if #n > 3 then
+			-- needs to have 2 neighbors or less to propagate (3 = +itself)
+			return
+		end
+
+		-- find desert sand with air above
+		n = minetest.find_nodes_in_area_under_air(
+			{x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
+			{x = pos.x + 1, y = pos.y + 1, z = pos.z + 1},
+			{"default:desert_sand"})
+
+		-- place blue agave
+		if n and #n > 0 then
+
+			local new_pos = n[math.random(#n)]
+
+			new_pos.y = new_pos.y + 1
+
+			minetest.set_node(new_pos, {name = "wine:blue_agave"})
+		end
+	end
+})
+
+if minetest.get_modpath("bonemeal") then
+	bonemeal:add_deco({
+		{"default:desert_sand", {}, {"default:dry_shrub", "wine:blue_agave", "", ""} }
+	})
+end
 
 -- Wine barrel
 winebarrel_formspec = "size[8,9]"
@@ -281,6 +332,7 @@ minetest.register_node("wine:wine_barrel", {
 		tubedevice = 1, tubedevice_receiver = 1
 	},
 	legacy_facedir_simple = true,
+	on_place = minetest.rotate_node,
 
 	on_construct = function(pos)
 		local meta = minetest.get_meta(pos)
@@ -441,6 +493,7 @@ if minetest.get_modpath("lucky_block") then
 lucky_block:add_blocks({
 	{"dro", {"wine:glass_wine"}, 5},
 	{"dro", {"wine:glass_beer"}, 5},
+	{"dro", {"wine:glass_wheat_beer"}, 5},
 	{"dro", {"wine:glass_mead"}, 5},
 	{"dro", {"wine:glass_cider"}, 5},
 	{"dro", {"wine:glass_tequila"}, 5},

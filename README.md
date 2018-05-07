@@ -4,7 +4,7 @@ by TenPlus1
 
 Depends: Farming Redo
 
-This mod adds a barrel used to ferment grapes into glasses of wine, 9 of which can then be crafted into a bottle of wine.  It can also ferment honey into mead, barley into beer and apples into cider.
+This mod adds a barrel used to ferment grapes into glasses of wine, 9 of which can then be crafted into a bottle of wine.  It can also ferment honey into mead, barley into beer, wheat into weizen (wheat beer), and apples into cider.
 
 Change log:
 
@@ -14,8 +14,9 @@ Change log:
 - 0.4 - Added ability to ferment barley from farming redo into beer and also honey from mobs redo into honey mead
 - 0.5 - Added apple cider
 - 0.6 - Added API so drinks can easily be added, also added wheat beer thanks to h-v-smacker and support for pipeworks/tubelib
+- 0.7 - Blue Agave now appears in desert areas and spreads very slowly, can me fermented into tequila
 
-Lucky Blocks: 8
+Lucky Blocks: 9
 
 
 Wine Mod API
