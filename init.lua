@@ -265,6 +265,10 @@ minetest.register_decoration({
 	fill_ratio = 0.001,
 	biomes = {"desert"},
 	decoration = {"wine:blue_agave"},
+	y_min = 15,
+	y_max = 50,
+	spawn_by = "default:desert_sand",
+	num_spawn_by = 6,
 })
 
 minetest.register_abm({
