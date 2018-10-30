@@ -270,24 +270,24 @@ minetest.register_decoration({
 minetest.register_abm({
 	label = "Blue Agave growth",
 	nodenames = {"wine:blue_agave"},
+	neighbors = {"default:desert_sand"},
 	interval = 17,
 	chance = 33,
 	action = function(pos, node)
 
-		local n = minetest.find_nodes_in_area(
-			{x = pos.x - 2, y = pos.y - 1, z = pos.z - 2},
+		local n = minetest.find_nodes_in_area_under_air(
 			{x = pos.x + 2, y = pos.y + 1, z = pos.z + 2},
+			{x = pos.x - 2, y = pos.y - 1, z = pos.z - 2},
 			{"wine:blue_agave"})
 
-		if #n > 3 then
-			-- needs to have 2 neighbors or less to propagate (3 = +itself)
+		if #n > 2 then
 			return
 		end
 
-		-- find desert sand with air above
+		-- find desert sand with air above (grow across and down only)
 		n = minetest.find_nodes_in_area_under_air(
-			{x = pos.x - 1, y = pos.y - 1, z = pos.z - 1},
-			{x = pos.x + 1, y = pos.y + 1, z = pos.z + 1},
+			{x = pos.x + 1, y = pos.y - 1, z = pos.z + 1},
+			{x = pos.x - 1, y = pos.y - 2, z = pos.z - 1},
 			{"default:desert_sand"})
 
 		-- place blue agave
