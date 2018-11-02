@@ -276,8 +276,13 @@ minetest.register_abm({
 	nodenames = {"wine:blue_agave"},
 	neighbors = {"default:desert_sand"},
 	interval = 17,
-	chance = 33,
+	chance = 76,
 	action = function(pos, node)
+
+		local light = minetest.get_node_light(pos)
+		if not light or light < 13 then
+			return
+		end
 
 		local n = minetest.find_nodes_in_area_under_air(
 			{x = pos.x + 2, y = pos.y + 1, z = pos.z + 2},
