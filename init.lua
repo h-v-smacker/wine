@@ -250,6 +250,42 @@ minetest.register_node("wine:blue_agave", {
 	},
 	groups = {snappy = 3, attached_node = 1, plant = 1},
 	sounds = default.node_sound_leaves_defaults(),
+	on_construct = function(pos)
+		local timer = minetest.get_node_timer(pos)
+		timer:start(17)
+	end,
+	on_timer = function(pos)
+		local light = minetest.get_node_light(pos)
+		if not light or light < 13 or math.random() > 1/76 then
+			return true -- go to next iteration
+		end
+
+		local n = minetest.find_nodes_in_area_under_air(
+			{x = pos.x + 2, y = pos.y + 1, z = pos.z + 2},
+			{x = pos.x - 2, y = pos.y - 1, z = pos.z - 2},
+			{"wine:blue_agave"})
+
+		-- too crowded, we'll wait for another iteration
+		if #n > 2 then
+			return true
+		end
+
+		-- find desert sand with air above (grow across and down only)
+		n = minetest.find_nodes_in_area_under_air(
+			{x = pos.x + 1, y = pos.y - 1, z = pos.z + 1},
+			{x = pos.x - 1, y = pos.y - 2, z = pos.z - 1},
+			{"default:desert_sand"})
+
+		-- place blue agave
+		if n and #n > 0 then
+			local new_pos = n[math.random(#n)]
+			new_pos.y = new_pos.y + 1
+			minetest.set_node(new_pos, {name = "wine:blue_agave"})
+		end
+		
+		return true
+		
+	end
 })
 
 minetest.register_craft( {
@@ -269,46 +305,6 @@ minetest.register_decoration({
 	y_max = 50,
 	spawn_by = "default:desert_sand",
 	num_spawn_by = 6,
-})
-
-minetest.register_abm({
-	label = "Blue Agave growth",
-	nodenames = {"wine:blue_agave"},
-	neighbors = {"default:desert_sand"},
-	interval = 17,
-	chance = 76,
-	action = function(pos, node)
-
-		local light = minetest.get_node_light(pos)
-		if not light or light < 13 then
-			return
-		end
-
-		local n = minetest.find_nodes_in_area_under_air(
-			{x = pos.x + 2, y = pos.y + 1, z = pos.z + 2},
-			{x = pos.x - 2, y = pos.y - 1, z = pos.z - 2},
-			{"wine:blue_agave"})
-
-		if #n > 2 then
-			return
-		end
-
-		-- find desert sand with air above (grow across and down only)
-		n = minetest.find_nodes_in_area_under_air(
-			{x = pos.x + 1, y = pos.y - 1, z = pos.z + 1},
-			{x = pos.x - 1, y = pos.y - 2, z = pos.z - 1},
-			{"default:desert_sand"})
-
-		-- place blue agave
-		if n and #n > 0 then
-
-			local new_pos = n[math.random(#n)]
-
-			new_pos.y = new_pos.y + 1
-
-			minetest.set_node(new_pos, {name = "wine:blue_agave"})
-		end
-	end
 })
 
 if minetest.get_modpath("bonemeal") then
@@ -352,7 +348,7 @@ minetest.register_node("wine:wine_barrel", {
 		inv:set_size("src", 1)
 		inv:set_size("dst", 1)
 	end,
-
+	                                      
 	can_dig = function(pos,player)
 
 		local meta = minetest.get_meta(pos)
@@ -408,6 +404,11 @@ minetest.register_node("wine:wine_barrel", {
 			return 0
 		end
 	end,
+	         
+	on_metadata_inventory_put = function(pos)
+		local timer = minetest.get_node_timer(pos)
+		timer:start(5)
+	end,
 
 	tube = (function() if minetest.get_modpath("pipeworks") then return {
 		-- using a different stack from defaut when inserting
@@ -416,7 +417,7 @@ minetest.register_node("wine:wine_barrel", {
 			local inv = meta:get_inventory()
 			local timer = minetest.get_node_timer(pos)
 			if not timer:is_started() then
-				timer:start(1.0)
+				timer:start(5)
 			end
 			return inv:add_item("src", stack)
 		end,
@@ -429,33 +430,16 @@ minetest.register_node("wine:wine_barrel", {
 		input_inventory = "dst",
 		connect_sides = {left = 1, right = 1, back = 1, front = 1, bottom = 1, top = 1}
 	} end end)(),
-})
-
-minetest.register_craft({
-	output = "wine:wine_barrel",
-	recipe = {
-		{"group:wood", "group:wood", "group:wood"},
-		{"default:steel_ingot", "", "default:steel_ingot"},
-		{"group:wood", "group:wood", "group:wood"},
-	},
-})
-
--- Wine barrel abm
-minetest.register_abm({
-	label = "Barrel fermentation",
-	nodenames = {"wine:wine_barrel"},
-	interval = 5,
-	chance = 1,
-	catch_up = false,
-
-	action = function(pos, node)
-
+	                                      
+	on_timer = function(pos)
 		local meta = minetest.get_meta(pos) ; if not meta then return end
 		local inv = meta:get_inventory()
 
 		-- is barrel empty?
 		if not inv or inv:is_empty("src") then
-			return
+			meta:set_float("status", 0.0)
+			meta:set_string("infotext", S("Fermenting Barrel"))
+			return false
 		end
 
 		-- does it contain any of the source items on the list?
@@ -467,13 +451,13 @@ minetest.register_abm({
 			end
 		end
 		if not has_item then
-			return
+			return false
 		end
 
 		-- is there room for additional fermentation?
 		if not inv:room_for_item("dst", ferment[has_item][2]) then
 			meta:set_string("infotext", S("Fermenting Barrel (FULL)"))
-			return
+			return true
 		end
 
 		local status = meta:get_float("status")
@@ -492,6 +476,40 @@ minetest.register_abm({
 			meta:set_float("status", 0.0)
 			meta:set_string("infotext", S("Fermenting Barrel"))
 		end
+	                                     
+		return true
+	                                     
+	end,
+	                                      
+})
+
+minetest.register_craft({
+	output = "wine:wine_barrel",
+	recipe = {
+		{"group:wood", "group:wood", "group:wood"},
+		{"default:steel_ingot", "", "default:steel_ingot"},
+		{"group:wood", "group:wood", "group:wood"},
+	},
+})
+
+-- LBMs to start timers on existing, ABM-driven nodes
+minetest.register_lbm({
+	name = "wine:barrel_timer_init",
+	nodenames = {"wine:wine_barrel"},
+	run_at_every_load = false,
+	action = function(pos)
+		local t = minetest.get_node_timer(pos)
+		t:start(5)
+	end,
+})
+
+minetest.register_lbm({
+	name = "wine:agave_timer_init",
+	nodenames = {"wine:blue_agave"},
+	run_at_every_load = false,
+	action = function(pos)
+		local t = minetest.get_node_timer(pos)
+		t:start(17)
 	end,
 })
 
