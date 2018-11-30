@@ -93,6 +93,7 @@ minetest.register_craft({
 	recipe = {"wine:bottle_wine"},
 })
 
+
 -- glass of weizen, or wheat beer
 -- The image is a lighter version of the one from RiverKpocc @ deviantart.com
 minetest.register_node("wine:glass_wheat_beer", {
@@ -114,6 +115,7 @@ minetest.register_node("wine:glass_wheat_beer", {
 	sounds = default.node_sound_glass_defaults(),
 	on_use = minetest.item_eat(2),
 })
+
 
 -- glass of beer (thanks to RiverKpocc @ deviantart.com for image)
 minetest.register_node("wine:glass_beer", {
@@ -158,6 +160,7 @@ minetest.register_node("wine:glass_mead", {
 	on_use = minetest.item_eat(4),
 })
 
+
 -- glass of apple cider
 minetest.register_node("wine:glass_cider", {
 	description = S("Apple Cider"),
@@ -179,6 +182,7 @@ minetest.register_node("wine:glass_cider", {
 	on_use = minetest.item_eat(2),
 })
 
+
 -- glass of tequila
 minetest.register_node("wine:glass_tequila", {
 	description = "Tequila",
@@ -199,6 +203,7 @@ minetest.register_node("wine:glass_tequila", {
 	sounds = default.node_sound_glass_defaults(),
 	on_use = minetest.item_eat(2),
 })
+
 
 -- bottle of tequila
 minetest.register_node("wine:bottle_tequila", {
@@ -232,6 +237,7 @@ minetest.register_craft({
 	recipe = {"wine:bottle_tequila"},
 })
 
+
 -- blue agave
 minetest.register_node("wine:blue_agave", {
 	description = "Blue Agave",
@@ -250,6 +256,50 @@ minetest.register_node("wine:blue_agave", {
 	},
 	groups = {snappy = 3, attached_node = 1, plant = 1},
 	sounds = default.node_sound_leaves_defaults(),
+
+	on_construct = function(pos)
+
+		local timer = minetest.get_node_timer(pos)
+
+		timer:start(17)
+	end,
+
+	on_timer = function(pos)
+
+		local light = minetest.get_node_light(pos)
+
+		if not light or light < 13 or math.random() > 1/76 then
+			return true -- go to next iteration
+		end
+
+		local n = minetest.find_nodes_in_area_under_air(
+			{x = pos.x + 2, y = pos.y + 1, z = pos.z + 2},
+			{x = pos.x - 2, y = pos.y - 1, z = pos.z - 2},
+			{"wine:blue_agave"})
+
+		-- too crowded, we'll wait for another iteration
+		if #n > 2 then
+			return true
+		end
+
+		-- find desert sand with air above (grow across and down only)
+		n = minetest.find_nodes_in_area_under_air(
+			{x = pos.x + 1, y = pos.y - 1, z = pos.z + 1},
+			{x = pos.x - 1, y = pos.y - 2, z = pos.z - 1},
+			{"default:desert_sand"})
+
+		-- place blue agave
+		if n and #n > 0 then
+
+			local new_pos = n[math.random(#n)]
+
+			new_pos.y = new_pos.y + 1
+
+			minetest.set_node(new_pos, {name = "wine:blue_agave"})
+		end
+
+		return true
+	end
 })
 
 minetest.register_craft( {
@@ -271,51 +321,12 @@ minetest.register_decoration({
 	num_spawn_by = 6,
 })
 
-minetest.register_abm({
-	label = "Blue Agave growth",
-	nodenames = {"wine:blue_agave"},
-	neighbors = {"default:desert_sand"},
-	interval = 17,
-	chance = 76,
-	action = function(pos, node)
-
-		local light = minetest.get_node_light(pos)
-		if not light or light < 13 then
-			return
-		end
-
-		local n = minetest.find_nodes_in_area_under_air(
-			{x = pos.x + 2, y = pos.y + 1, z = pos.z + 2},
-			{x = pos.x - 2, y = pos.y - 1, z = pos.z - 2},
-			{"wine:blue_agave"})
-
-		if #n > 2 then
-			return
-		end
-
-		-- find desert sand with air above (grow across and down only)
-		n = minetest.find_nodes_in_area_under_air(
-			{x = pos.x + 1, y = pos.y - 1, z = pos.z + 1},
-			{x = pos.x - 1, y = pos.y - 2, z = pos.z - 1},
-			{"default:desert_sand"})
-
-		-- place blue agave
-		if n and #n > 0 then
-
-			local new_pos = n[math.random(#n)]
-
-			new_pos.y = new_pos.y + 1
-
-			minetest.set_node(new_pos, {name = "wine:blue_agave"})
-		end
-	end
-})
-
 if minetest.get_modpath("bonemeal") then
 	bonemeal:add_deco({
 		{"default:desert_sand", {}, {"default:dry_shrub", "wine:blue_agave", "", ""} }
 	})
 end
+
 
 -- Wine barrel
 winebarrel_formspec = "size[8,9]"
@@ -341,14 +352,19 @@ minetest.register_node("wine:wine_barrel", {
 		tubedevice = 1, tubedevice_receiver = 1
 	},
 	legacy_facedir_simple = true,
+
 	on_place = minetest.rotate_node,
 
 	on_construct = function(pos)
+
 		local meta = minetest.get_meta(pos)
+
 		meta:set_string("formspec", winebarrel_formspec)
 		meta:set_string("infotext", S("Fermenting Barrel"))
 		meta:set_float("status", 0.0)
+
 		local inv = meta:get_inventory()
+
 		inv:set_size("src", 1)
 		inv:set_size("dst", 1)
 	end,
@@ -373,7 +389,6 @@ minetest.register_node("wine:wine_barrel", {
 		end
 
 		return stack:get_count()
-
 	end,
 
 	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
@@ -409,71 +424,79 @@ minetest.register_node("wine:wine_barrel", {
 		end
 	end,
 
+	on_metadata_inventory_put = function(pos)
+
+		local timer = minetest.get_node_timer(pos)
+
+		timer:start(5)
+	end,
+
 	tube = (function() if minetest.get_modpath("pipeworks") then return {
+
 		-- using a different stack from defaut when inserting
 		insert_object = function(pos, node, stack, direction)
+
 			local meta = minetest.get_meta(pos)
 			local inv = meta:get_inventory()
 			local timer = minetest.get_node_timer(pos)
+
 			if not timer:is_started() then
-				timer:start(1.0)
+				timer:start(5)
 			end
+
 			return inv:add_item("src", stack)
 		end,
+
 		can_insert = function(pos,node,stack,direction)
+
 			local meta = minetest.get_meta(pos)
 			local inv = meta:get_inventory()
+
 			return inv:room_for_item("src", stack)
 		end,
+
 		-- the default stack, from which objects will be taken
 		input_inventory = "dst",
 		connect_sides = {left = 1, right = 1, back = 1, front = 1, bottom = 1, top = 1}
 	} end end)(),
-})
 
-minetest.register_craft({
-	output = "wine:wine_barrel",
-	recipe = {
-		{"group:wood", "group:wood", "group:wood"},
-		{"default:steel_ingot", "", "default:steel_ingot"},
-		{"group:wood", "group:wood", "group:wood"},
-	},
-})
-
--- Wine barrel abm
-minetest.register_abm({
-	label = "Barrel fermentation",
-	nodenames = {"wine:wine_barrel"},
-	interval = 5,
-	chance = 1,
-	catch_up = false,
-
-	action = function(pos, node)
+	on_timer = function(pos)
 
 		local meta = minetest.get_meta(pos) ; if not meta then return end
 		local inv = meta:get_inventory()
 
 		-- is barrel empty?
 		if not inv or inv:is_empty("src") then
-			return
+
+			meta:set_float("status", 0.0)
+			meta:set_string("infotext", S("Fermenting Barrel"))
+
+			return false
 		end
 
 		-- does it contain any of the source items on the list?
 		local has_item
+
 		for n = 1, #ferment do
+
 			if inv:contains_item("src", ItemStack(ferment[n][1])) then
+
 				has_item = n
+
 				break
 			end
 		end
+
 		if not has_item then
-			return
+			return false
 		end
 
 		-- is there room for additional fermentation?
 		if not inv:room_for_item("dst", ferment[has_item][2]) then
+
 			meta:set_string("infotext", S("Fermenting Barrel (FULL)"))
-			return
+
+			return true
 		end
 
 		local status = meta:get_float("status")
@@ -485,6 +508,7 @@ minetest.register_abm({
 		else
 			inv:remove_item("src", ferment[has_item][1])
 			inv:add_item("dst", ferment[has_item][2])
+
 			meta:set_float("status", 0,0)
 		end
 
@@ -492,27 +516,64 @@ minetest.register_abm({
 			meta:set_float("status", 0.0)
 			meta:set_string("infotext", S("Fermenting Barrel"))
 		end
+
+		return true
 	end,
 })
 
--- add lucky blocks
+minetest.register_craft({
+	output = "wine:wine_barrel",
+	recipe = {
+		{"group:wood", "group:wood", "group:wood"},
+		{"default:steel_ingot", "", "default:steel_ingot"},
+		{"group:wood", "group:wood", "group:wood"},
+	},
+})
 
+
+-- LBMs to start timers on existing, ABM-driven nodes
+minetest.register_lbm({
+	name = "wine:barrel_timer_init",
+	nodenames = {"wine:wine_barrel"},
+	run_at_every_load = false,
+	action = function(pos)
+
+		local t = minetest.get_node_timer(pos)
+
+		t:start(5)
+	end,
+})
+
+minetest.register_lbm({
+	name = "wine:agave_timer_init",
+	nodenames = {"wine:blue_agave"},
+	run_at_every_load = false,
+	action = function(pos)
+
+		local t = minetest.get_node_timer(pos)
+
+		t:start(17)
+	end,
+})
+
+
+-- add lucky blocks
 if minetest.get_modpath("lucky_block") then
 
-lucky_block:add_blocks({
-	{"dro", {"wine:glass_wine"}, 5},
-	{"dro", {"wine:glass_beer"}, 5},
-	{"dro", {"wine:glass_wheat_beer"}, 5},
-	{"dro", {"wine:glass_mead"}, 5},
-	{"dro", {"wine:glass_cider"}, 5},
-	{"dro", {"wine:glass_tequila"}, 5},
-	{"dro", {"wine:wine_barrel"}, 1},
-	{"tel", 5, 1},
-	{"nod", "default:chest", 0, {
-		{name = "wine:bottle_wine", max = 1},
-		{name = "wine:bottle_tequila", max = 1},
-		{name = "wine:blue_agave", max = 4}}},
-})
+	lucky_block:add_blocks({
+		{"dro", {"wine:glass_wine"}, 5},
+		{"dro", {"wine:glass_beer"}, 5},
+		{"dro", {"wine:glass_wheat_beer"}, 5},
+		{"dro", {"wine:glass_mead"}, 5},
+		{"dro", {"wine:glass_cider"}, 5},
+		{"dro", {"wine:glass_tequila"}, 5},
+		{"dro", {"wine:wine_barrel"}, 1},
+		{"tel", 5, 1},
+		{"nod", "default:chest", 0, {
+			{name = "wine:bottle_wine", max = 1},
+			{name = "wine:bottle_tequila", max = 1},
+			{name = "wine:blue_agave", max = 4}}},
+	})
 end
 
 print (S("[MOD] Wine loaded"))
