@@ -75,7 +75,7 @@ minetest.register_node("wine:bottle_wine", {
 		type = "fixed",
 		fixed = { -0.15, -0.5, -0.15, 0.15, 0.25, 0.15 }
 	},
-	groups = {dig_immediate = 3, attached_node = 1},
+	groups = {dig_immediate = 3, attached_node = 1, vessel = 1},
 	sounds = default.node_sound_defaults(),
 })
 
@@ -219,7 +219,7 @@ minetest.register_node("wine:bottle_tequila", {
 		type = "fixed",
 		fixed = { -0.15, -0.5, -0.15, 0.15, 0.25, 0.15 }
 	},
-	groups = {dig_immediate = 3, attached_node = 1},
+	groups = {dig_immediate = 3, attached_node = 1, vessel = 1},
 	sounds = default.node_sound_defaults(),
 })
 
