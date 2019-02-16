@@ -30,6 +30,7 @@ local ferment = {
 	{"default:apple", "wine:glass_cider"},
 	{"wine:blue_agave", "wine:glass_tequila"},
 	{"farming:wheat", "wine:glass_wheat_beer"},
+	{"farming:rice", "wine:glass_sake"},
 }
 
 function wine:add_item(list)
@@ -74,7 +75,7 @@ minetest.register_node("wine:bottle_wine", {
 		type = "fixed",
 		fixed = { -0.15, -0.5, -0.15, 0.15, 0.25, 0.15 }
 	},
-	groups = {dig_immediate = 3, attached_node = 1},
+	groups = {dig_immediate = 3, attached_node = 1, vessel = 1},
 	sounds = default.node_sound_defaults(),
 })
 
@@ -218,7 +219,7 @@ minetest.register_node("wine:bottle_tequila", {
 		type = "fixed",
 		fixed = { -0.15, -0.5, -0.15, 0.15, 0.25, 0.15 }
 	},
-	groups = {dig_immediate = 3, attached_node = 1},
+	groups = {dig_immediate = 3, attached_node = 1, vessel = 1},
 	sounds = default.node_sound_defaults(),
 })
 
@@ -235,6 +236,28 @@ minetest.register_craft({
 	type = "shapeless",
 	output = "wine:glass_tequila 9",
 	recipe = {"wine:bottle_tequila"},
+})
+
+
+-- glass of sake
+minetest.register_node("wine:glass_sake", {
+	description = "Sake",
+	drawtype = "plantlike",
+	visual_scale = 0.8,
+	tiles = {"wine_sake.png"},
+	inventory_image = "wine_sake.png",
+	wield_image = "wine_sake.png",
+	paramtype = "light",
+	is_ground_content = false,
+	sunlight_propagates = true,
+	walkable = false,
+	selection_box = {
+		type = "fixed",
+		fixed = {-0.2, -0.5, -0.2, 0.2, 0.3, 0.2}
+	},
+	groups = {food_sake = 1, vessel = 1, dig_immediate = 3, attached_node = 1},
+	sounds = default.node_sound_glass_defaults(),
+	on_use = minetest.item_eat(2),
 })
 
 
