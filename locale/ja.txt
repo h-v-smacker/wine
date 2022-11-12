@@ -1,0 +1,15 @@
+# Japanese Translation of wine mod
+# ワインモッドの日本語への翻訳
+# last update: 2022/November/12
+# 最後の更新: 2022年11月12日
+# Translation By damiemk
+
+Glass of Wine = グラスワイン
+Bottle of Wine = ワインボトル
+Beer = ビール
+Honey-Mead = ハニーミード
+Apple Cider = 林檎酒
+Fermenting Barrel = 発酵バレル
+Fermenting Barrel (FULL) = 発酵バレル (FULL)
+Fermenting Barrel (@1% Done) = 発酵バレル (@1% Done)
+[MOD] Wine loaded = [MOD] ワインがロードされています
